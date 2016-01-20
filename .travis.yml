@@ -8,3 +8,4 @@ install:
 - curl -sL https://gist.githubusercontent.com/heckj/818f2b5a3b2c3c1bb2d6/raw/8eaa3f280afb6784acee7c255ee1da1a2f93c69a/swiftenv-install.sh | bash
 script:
 - . ~/.swiftenv/init
+- make test
