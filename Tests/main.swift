@@ -1,1 +1,1 @@
-describeQueue()
+testAll()
