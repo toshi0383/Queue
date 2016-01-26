@@ -1,10 +1,24 @@
-BUILD_DIR=./.build/debug
+BIN=main
+MOD=TAP
+MODSRC=Tests/tap.swift
+BINSRC=$(MODSRC) Tests/main.swift Tests/*Tests.swift Sources/Queue.swift
+MODULE=$(MOD).swiftmodule $(MOD).swiftdoc
+SWIFTC=swiftc
+SWIFT=swift
+ifdef SWIFTPATH
+	SWIFTC=$(SWIFTPATH)/swiftc
+	SWIFT=$(SWIFTPATH)/swift
+endif
+OS := $(shell uname)
+ifeq ($(OS),Darwin)
+	SWIFTC=xcrun -sdk macosx swiftc
+endif
 
-test: lib
-	$(BUILD_DIR)/spectre-build
-
+all: $(BIN)
+module: $(MODULE)
 clean:
-	swift build --clean
-
-lib:
-	swift build
+	-rm $(BIN) $(MODULE) lib$(MOD).*
+$(BIN): $(BINSRC)
+	$(SWIFTC) $(BINSRC)
+test: $(BIN)
+	prove ./$(BIN)
