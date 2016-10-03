@@ -44,7 +44,7 @@ func testSubscript() {
     q.enqueue("e")
     test.eq(q[3], "d", "q[1] == \"d\"")
     test.eq(q[4], "e", "q[1] == \"e\"")
-    _ = q.dequeue() // pop "a"
+    q.dequeue() // pop "a"
     test.eq(q[0], "b", "q[1] == \"b\"")
     test.eq(q[1], "c", "q[1] == \"c\"")
     test.eq(q[2], "d", "q[1] == \"d\"")
