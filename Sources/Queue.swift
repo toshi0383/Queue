@@ -22,6 +22,7 @@ public struct Queue<T:Equatable>:QueueType {
             queue.append(element)
         }
     }
+    @discardableResult
     public mutating func dequeue() -> Element? {
         if reversed.count == 0 {
             reversed = queue.reversed()
