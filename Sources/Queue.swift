@@ -8,8 +8,8 @@
 import Darwin
 
 public protocol QueueType {
-    typealias Element
-    mutating func enqueue(element: Element)
+    associatedtype Element
+    mutating func enqueue(_ element: Element)
     mutating func dequeue() -> Element?
 }
 /// FIFO Queue
@@ -17,15 +17,15 @@ public struct Queue<T:Equatable>:QueueType {
     public typealias Element = T
     var queue: [Element]
     var reversed: [Element]
-    public mutating func enqueue(element: Element) {
+    public mutating func enqueue(_ element: Element) {
         if !self.contains(element) {
             queue.append(element)
         }
     }
     public mutating func dequeue() -> Element? {
         if reversed.count == 0 {
-            reversed = queue.reverse()
-            queue.removeAll(keepCapacity: true)
+            reversed = queue.reversed()
+            queue.removeAll(keepingCapacity: true)
         }
         return reversed.popLast()
     }
@@ -40,7 +40,16 @@ public extension Queue {
     }
 }
 
-extension Queue: CollectionType {
+extension Queue: Collection {
+    /// Returns the position immediately after the given index.
+    ///
+    /// - Parameter i: A valid index of the collection. `i` must be less than
+    ///   `endIndex`.
+    /// - Returns: The index value immediately after `i`.
+    public func index(after i: Int) -> Int {
+        return i + 1
+    }
+
     public var startIndex: Int {return 0}
     public var endIndex: Int {
         return count
@@ -56,7 +65,7 @@ extension Queue: CollectionType {
             return queue[position - reversed.count]
         }
     }
-    public func filter(@noescape includeElement: (Element) throws -> Bool) rethrows -> Queue<Element> {
+    public func filter(includeElement: (Element) throws -> Bool) rethrows -> Queue<Element> {
         var resultQueue = Queue<Element>()
         for element in self {
             if try includeElement(element) {
@@ -66,16 +75,16 @@ extension Queue: CollectionType {
         return resultQueue
     }
 }
-extension Queue: ArrayLiteralConvertible {
+extension Queue: ExpressibleByArrayLiteral {
     public init(arrayLiteral elements: Element...) {
-        reversed = elements.reverse()
+        reversed = elements.reversed()
         queue = []
     }
 }
 
 extension Queue {
     public init(array: [Element]) {
-        reversed = array.reverse()
+        reversed = array.reversed()
         queue = []
     }
 }
@@ -85,20 +94,20 @@ extension Queue: CustomStringConvertible {
         return "Queue {\nreversed: \(reversed)\nqueue: \(queue)\n}"
     }
 }
-extension Queue: RangeReplaceableCollectionType {
+extension Queue: RangeReplaceableCollection {
     public init() {
         queue = []
         reversed = []
     }
-    public mutating func replaceRange<C: CollectionType where C.Generator.Element == Queue.Generator.Element>
-        (subRange: Range<Queue.Index>, with newElements: C) {
+    public mutating func replaceSubrange<C: Collection>
+        (_ subRange: Range<Queue.Index>, with newElements: C) where C.Iterator.Element == Queue.Iterator.Element {
     }
-    public mutating func reserveCapacity(n: Index.Distance) {
+    public mutating func reserveCapacity(_ n: IndexDistance) {
         queue.reserveCapacity(n <= queue.count ? n : 0)
         reversed.reserveCapacity(n - queue.count <= reversed.count ? n : 0)
     }
 }
-func shuffle<T>(array: [T]) -> [T] {
+func shuffle<T>(_ array: [T]) -> [T] {
 
     guard !array.isEmpty else {
         return []
